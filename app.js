@@ -66,7 +66,47 @@ app.get('/userid/:id', (req, res, next) => {
     res.send('special')
 });
 
+// ------- Router-level middleware --------
 
+// a middleware function with no mount path. This code is executed for every request to the router
+// router.use((req, res, next) => {
+//     console.log('Router level middleware- time: ', Date.now())
+//     next()
+// });
+
+// use the router and 401 anything falling through will be unauthorized
+app.use('/admin', router, function (req, res) {
+    res.sendStatus(401)
+  })
+
+// a middleware sub-stack shows request info for any type of HTTP
+// router.use('/student/:id', (req, res, next) => {
+//     console.log('Any type of request for /student/:id')
+//     console.log('Request URL: ', req.originalUrl)
+//     next()
+// }, (req, res, next) => {
+//     console.log('Request Type: ', req.method)
+//     next()    
+// });
+
+// a middleware sub-stack that handles GET requests to the /user/:id path
+router.get('/student/:id', (req, res, next) => {
+    console.log('Get req for /student/:id')
+    // id user ID is 0, skip to next router
+    // otherwise pass control to the next middleware function in this stack
+    req.params.id === '0' ? next('route') : next()
+  }, (req, res, next) => {
+    // sends a regular page
+    res.send('regular')
+});
+
+// handler for the /user/:id path, which renders a special page
+router.get('/student/:id', (req, res, next) => {
+    console.log('Get req passed after the condition is met for /student/:id')
+    res.send('special')
+});
+
+app.use('/', router);
 
 // uses routes impirted from bird.js
 app.use('/bird', bird);
