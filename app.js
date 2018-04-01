@@ -2,14 +2,26 @@ const express = require('express');
 const app = express();
 const bird = require('./bird');
 
+// initialize router-level middlware
+const router = express.Router();
+
 // get
-app.get('/', (req, res) => res.send('Home Page'));
+app.get('/', (req, res) => {
+    console.log('get req for home page')
+    res.send('Home Page')
+});
 
 // post
-app.post('/', (req, res) => res.send('Its a Post'));
+app.post('/', (req, res) => {
+    console.log('post req for root path')
+    res.send('Its a Post')
+});
 
 // returns a json obj as per requested params
-app.get('/roadtrip/:start-:stop', (req, res) => res.send(req.params));
+app.get('/roadtrip/:start-:stop', (req, res) => {
+    console.log('get req for /roadtrip/:start-:stop')
+    res.send(req.params)
+});
 
 // a middleware sub-stack that handles GET requests and uses next() to call next middleware function
 app.get('/user/:id', (req, res, next) => {
@@ -40,19 +52,21 @@ app.get('/users/:id', (req, res, next) => {
 
 // skip the rest of the middleware functions from a router middleware stack, call next('route') to pass control to the next route
 app.get('/userid/:id', (req, res, next) => {
-    // if the user ID is 0, skip to the next route
-    if (req.params.id === '0') next('route')
+    // if the user ID is 0, skip to the next route 
     // otherwise pass the control to the next middleware function in this stack
-    else next()
+    req.params.id === '0' ? next('route') : next()
   }, (req, res, next) => {
     // sends a regular page
     res.send('regular')
 });
   
 // handler for the /user/:id path, which sends a special page
-app.get('/userid/:id', (req, res, next) => res.send('special'));
+app.get('/userid/:id', (req, res, next) => {
+    console.log('Get req passed after the condition is met for /userid/:id')
+    res.send('special')
+});
 
-// ------- Router-level middleware --------
+
 
 // uses routes impirted from bird.js
 app.use('/bird', bird);
