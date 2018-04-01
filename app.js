@@ -2,12 +2,6 @@ const express = require('express');
 const app = express();
 const bird = require('./bird');
 
-// Use a middleware function before going to homepage
-app.use((req, res, next) => {
-    console.log('LOGGED IN')
-    next()
-});
-
 // get
 app.get('/', (req, res) => res.send('Home Page'));
 
@@ -16,6 +10,49 @@ app.post('/', (req, res) => res.send('Its a Post'));
 
 // returns a json obj as per requested params
 app.get('/roadtrip/:start-:stop', (req, res) => res.send(req.params));
+
+// a middleware sub-stack that handles GET requests and uses next() to call next middleware function
+app.get('/user/:id', (req, res, next) => {
+    console.log('ID:', req.params.id)
+    next()
+  }, (req, res, next) => res.send('User Info')
+);
+  
+// handler for the /user/:id path, which prints the user ID
+app.get('/users/:id', (req, res, next) => {
+    console.log('req.params.id is: ', req.params.id)
+    res.end('the id won\'t display as the (res.end) is called : => ', req.params.id)
+});
+
+// ------- Application-level middleware --------
+
+// Use a middleware function without mount path, executes for every request
+// app.use((req, res, next) => {
+//     console.log('a middleware function without mount path, executes for every request')
+//     next()
+// });
+
+// Use a middleware function with a mount path, executes only for that path
+// app.use('/middleware', (req, res, next) => {
+//     console.log('a middleware function with a mount path, executes only for that path')
+//     next()
+// });
+
+// skip the rest of the middleware functions from a router middleware stack, call next('route') to pass control to the next route
+app.get('/userid/:id', (req, res, next) => {
+    // if the user ID is 0, skip to the next route
+    if (req.params.id === '0') next('route')
+    // otherwise pass the control to the next middleware function in this stack
+    else next()
+  }, (req, res, next) => {
+    // sends a regular page
+    res.send('regular')
+});
+  
+// handler for the /user/:id path, which sends a special page
+app.get('/userid/:id', (req, res, next) => res.send('special'));
+
+// ------- Router-level middleware --------
 
 // uses routes impirted from bird.js
 app.use('/bird', bird);
