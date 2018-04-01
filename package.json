@@ -1,0 +1,14 @@
+{
+  "name": "express-node-practice",
+  "version": "1.0.0",
+  "description": "Sample Practice app for express using node js",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "author": "MSD",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
